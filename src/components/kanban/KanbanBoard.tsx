@@ -12,18 +12,19 @@ import {
   DragOverEvent,
   DragEndEvent,
 } from "@dnd-kit/core";
-import { KanbanCard as KanbanCardType, ColumnId } from "@/lib/types";
+import { Project, ProjectStage } from "@/lib/types";
 import KanbanColumn from "./KanbanColumn";
 import KanbanCard from "./KanbanCard";
 
-const COLUMNS: ColumnId[] = ["todo", "in-progress", "complete"];
+const COLUMNS: ProjectStage[] = ["idea", "planned", "in-progress", "complete"];
 
 interface KanbanBoardProps {
-  cards: KanbanCardType[];
-  getColumnCards: (columnId: ColumnId) => KanbanCardType[];
-  onAddCard: (title: string, columnId: ColumnId) => void;
+  cards: Project[];
+  getColumnCards: (stage: ProjectStage) => Project[];
+  onAddCard: (title: string, stage: ProjectStage, description?: string) => void;
   onDeleteCard: (id: string) => void;
-  onMoveCard: (cardId: string, targetColumnId: ColumnId, targetIndex: number) => void;
+  onMoveCard: (cardId: string, targetStage: ProjectStage, targetIndex: number) => void;
+  onCardClick?: (id: string) => void;
 }
 
 export default function KanbanBoard({
@@ -32,17 +33,18 @@ export default function KanbanBoard({
   onAddCard,
   onDeleteCard,
   onMoveCard,
+  onCardClick,
 }: KanbanBoardProps) {
-  const [activeCard, setActiveCard] = useState<KanbanCardType | null>(null);
+  const [activeCard, setActiveCard] = useState<Project | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
   const findColumnOfCard = useCallback(
-    (cardId: string): ColumnId | null => {
+    (cardId: string): ProjectStage | null => {
       const card = cards.find((c) => c.id === cardId);
-      return card ? card.columnId : null;
+      return card ? card.stage : null;
     },
     [cards]
   );
@@ -64,8 +66,8 @@ export default function KanbanBoard({
       const overId = over.id as string;
 
       const activeColumn = findColumnOfCard(activeId);
-      const overColumn = COLUMNS.includes(overId as ColumnId)
-        ? (overId as ColumnId)
+      const overColumn = COLUMNS.includes(overId as ProjectStage)
+        ? (overId as ProjectStage)
         : findColumnOfCard(overId);
 
       if (!activeColumn || !overColumn || activeColumn === overColumn) return;
@@ -90,8 +92,8 @@ export default function KanbanBoard({
       const overId = over.id as string;
 
       const activeColumn = findColumnOfCard(activeId);
-      const overColumn = COLUMNS.includes(overId as ColumnId)
-        ? (overId as ColumnId)
+      const overColumn = COLUMNS.includes(overId as ProjectStage)
+        ? (overId as ProjectStage)
         : findColumnOfCard(overId);
 
       if (!activeColumn || !overColumn) return;
@@ -115,13 +117,14 @@ export default function KanbanBoard({
       onDragEnd={handleDragEnd}
     >
       <div className="flex gap-4 flex-1 overflow-x-auto p-5 stagger">
-        {COLUMNS.map((columnId) => (
+        {COLUMNS.map((stage) => (
           <KanbanColumn
-            key={columnId}
-            columnId={columnId}
-            cards={getColumnCards(columnId)}
+            key={stage}
+            columnId={stage}
+            cards={getColumnCards(stage)}
             onAddCard={onAddCard}
             onDeleteCard={onDeleteCard}
+            onCardClick={onCardClick}
           />
         ))}
       </div>

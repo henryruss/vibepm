@@ -1,35 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useKanban } from "@/hooks/useKanban";
-import { useTodos } from "@/hooks/useTodos";
-import { useNotes } from "@/hooks/useNotes";
+import { useState } from "react";
+import { useAuth } from "@/components/AuthProvider";
+import { useProjects } from "@/hooks/useProjects";
+import { useSupabaseTodos } from "@/hooks/useSupabaseTodos";
+import { useSupabaseNotes } from "@/hooks/useSupabaseNotes";
 import KanbanBoard from "./kanban/KanbanBoard";
 import TodoList from "./todos/TodoList";
 import NoteEditor from "./notes/NoteEditor";
+import ProjectDetailView from "./projects/ProjectDetailView";
 
 export default function Dashboard() {
-  const [mounted, setMounted] = useState(false);
-  const kanban = useKanban();
-  const todos = useTodos();
-  const notes = useNotes();
+  const { user, signOut } = useAuth();
+  const projects = useProjects();
+  const todos = useSupabaseTodos();
+  const notes = useSupabaseNotes();
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const selectedProject = selectedProjectId
+    ? projects.projects.find((p) => p.id === selectedProjectId) ?? null
+    : null;
 
-  if (!mounted) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
-          <p className="text-text-3 text-xs font-[family-name:var(--font-mono)] tracking-wider uppercase">
-            Loading workspace
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const isConnected = !projects.error;
 
   return (
     <div className="h-screen flex flex-col overflow-hidden animate-fade-up">
@@ -45,11 +37,25 @@ export default function Dashboard() {
             workspace
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-col-done animate-glow-pulse" />
-          <span className="text-[10px] font-[family-name:var(--font-mono)] text-text-3">
-            auto-saved
-          </span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-1.5 h-1.5 rounded-full ${
+                isConnected ? "bg-col-done animate-glow-pulse" : "bg-danger"
+              }`}
+            />
+            <span className="text-[10px] font-[family-name:var(--font-mono)] text-text-3">
+              {isConnected ? "connected" : "offline"}
+            </span>
+          </div>
+          {user && (
+            <button
+              onClick={signOut}
+              className="text-[10px] font-[family-name:var(--font-mono)] text-text-3 hover:text-text-2 transition-colors uppercase tracking-wider"
+            >
+              Sign out
+            </button>
+          )}
         </div>
       </header>
 
@@ -70,15 +76,37 @@ export default function Dashboard() {
 
         {/* ── Main ─────────────────────────────── */}
         <main className="flex-1 overflow-hidden flex flex-col bg-void-soft">
-          <KanbanBoard
-            cards={kanban.cards}
-            getColumnCards={kanban.getColumnCards}
-            onAddCard={kanban.addCard}
-            onDeleteCard={kanban.deleteCard}
-            onMoveCard={kanban.moveCard}
-          />
+          {projects.loading ? (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                <p className="text-text-3 text-xs font-[family-name:var(--font-mono)] tracking-wider uppercase">
+                  Loading projects
+                </p>
+              </div>
+            </div>
+          ) : (
+            <KanbanBoard
+              cards={projects.cards}
+              getColumnCards={projects.getColumnCards}
+              onAddCard={projects.addCard}
+              onDeleteCard={projects.deleteCard}
+              onMoveCard={projects.moveCard}
+              onCardClick={setSelectedProjectId}
+            />
+          )}
         </main>
       </div>
+
+      {/* ── Project Detail Slide-out ──────────── */}
+      {selectedProject && (
+        <ProjectDetailView
+          project={selectedProject}
+          onUpdate={projects.updateProject}
+          onDelete={projects.deleteProject}
+          onClose={() => setSelectedProjectId(null)}
+        />
+      )}
     </div>
   );
 }

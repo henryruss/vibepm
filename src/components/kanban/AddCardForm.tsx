@@ -1,11 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { ColumnId } from "@/lib/types";
+import { ProjectStage } from "@/lib/types";
+
+const PLACEHOLDERS: Record<ProjectStage, string> = {
+  idea: "What's the idea?",
+  planned: "What are you planning?",
+  "in-progress": "What are you working on?",
+  complete: "What did you finish?",
+};
 
 interface AddCardFormProps {
-  columnId: ColumnId;
-  onAdd: (title: string, columnId: ColumnId) => void;
+  columnId: ProjectStage;
+  onAdd: (title: string, stage: ProjectStage, description?: string) => void;
 }
 
 export default function AddCardForm({ columnId, onAdd }: AddCardFormProps) {
@@ -58,7 +65,7 @@ export default function AddCardForm({ columnId, onAdd }: AddCardFormProps) {
         onBlur={() => {
           if (!title.trim()) setIsOpen(false);
         }}
-        placeholder="What needs to be done?"
+        placeholder={PLACEHOLDERS[columnId]}
         className="
           w-full bg-surface-3 text-[13px] text-text placeholder:text-text-3
           rounded-md px-3 py-2 border border-stroke

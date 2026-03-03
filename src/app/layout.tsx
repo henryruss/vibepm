@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Syne, DM_Sans, DM_Mono } from "next/font/google";
+import AuthProvider from "@/components/AuthProvider";
 import "./globals.css";
 
 const syne = Syne({
@@ -36,7 +37,9 @@ export default function RootLayout({
       <body className="font-[family-name:var(--font-body)]">
         <div id="void-atmosphere" />
         <div id="void-noise" />
-        <div className="relative z-10">{children}</div>
+        <div className="relative z-10">
+          <AuthProvider>{children}</AuthProvider>
+        </div>
       </body>
     </html>
   );

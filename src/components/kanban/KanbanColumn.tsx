@@ -5,16 +5,21 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { ColumnId, KanbanCard as KanbanCardType } from "@/lib/types";
+import { ProjectStage, Project } from "@/lib/types";
 import KanbanCard from "./KanbanCard";
 import AddCardForm from "./AddCardForm";
 
 const COLUMN_CONFIG: Record<
-  ColumnId,
+  ProjectStage,
   { label: string; color: string; bgGlow: string }
 > = {
-  todo: {
-    label: "Todo",
+  idea: {
+    label: "Idea",
+    color: "bg-col-idea",
+    bgGlow: "rgba(168, 130, 255, 0.08)",
+  },
+  planned: {
+    label: "Planned",
     color: "bg-col-todo",
     bgGlow: "rgba(124, 131, 247, 0.08)",
   },
@@ -31,10 +36,11 @@ const COLUMN_CONFIG: Record<
 };
 
 interface KanbanColumnProps {
-  columnId: ColumnId;
-  cards: KanbanCardType[];
-  onAddCard: (title: string, columnId: ColumnId) => void;
+  columnId: ProjectStage;
+  cards: Project[];
+  onAddCard: (title: string, stage: ProjectStage, description?: string) => void;
   onDeleteCard: (id: string) => void;
+  onCardClick?: (id: string) => void;
 }
 
 export default function KanbanColumn({
@@ -42,13 +48,14 @@ export default function KanbanColumn({
   cards,
   onAddCard,
   onDeleteCard,
+  onCardClick,
 }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: columnId });
   const config = COLUMN_CONFIG[columnId];
 
   return (
     <div
-      className={`flex flex-col rounded-lg min-w-[272px] w-[304px] flex-shrink-0 transition-all duration-300 overflow-hidden ${
+      className={`flex flex-col rounded-lg min-w-[252px] w-[280px] flex-shrink-0 transition-all duration-300 overflow-hidden ${
         isOver ? "ring-1 ring-gold/20" : ""
       }`}
       style={{
@@ -83,7 +90,12 @@ export default function KanbanColumn({
         >
           <div className="flex flex-col gap-1.5 stagger">
             {cards.map((card) => (
-              <KanbanCard key={card.id} card={card} onDelete={onDeleteCard} />
+              <KanbanCard
+                key={card.id}
+                card={card}
+                onDelete={onDeleteCard}
+                onClick={onCardClick}
+              />
             ))}
           </div>
         </SortableContext>

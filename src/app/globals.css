@@ -19,6 +19,7 @@
   --color-gold: #f5a623;
   --color-gold-dim: #c4841c;
   --color-gold-glow: rgba(245, 166, 35, 0.15);
+  --color-col-idea: #a882ff;
   --color-col-todo: #7c83f7;
   --color-col-progress: #f5a623;
   --color-col-done: #3ecf8e;
@@ -96,6 +97,21 @@ body {
 @keyframes glow-pulse {
   0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes shimmer-in {
