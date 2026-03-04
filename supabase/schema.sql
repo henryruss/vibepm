@@ -8,6 +8,7 @@ create table public.projects (
   title text not null,
   description text default '',
   stage text not null default 'idea' check (stage in ('idea', 'planned', 'in-progress', 'complete')),
+  category text not null default 'website' check (category in ('website', 'agent')),
   "order" integer not null default 0,
   summary text default '',
   tech_stack text[] default '{}',
@@ -26,6 +27,7 @@ create table public.projects (
 create table public.todos (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
+  project_id uuid references public.projects(id) on delete cascade,
   text text not null,
   completed boolean not null default false,
   created_at timestamptz not null default now()
@@ -35,6 +37,7 @@ create table public.todos (
 create table public.notes (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
+  project_id uuid references public.projects(id) on delete cascade,
   content text default '',
   updated_at timestamptz not null default now()
 );

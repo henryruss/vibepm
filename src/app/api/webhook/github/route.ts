@@ -97,6 +97,9 @@ export async function POST(request: NextRequest) {
         if (parsed.stage) {
             updateData.stage = parsed.stage;
         }
+        if (parsed.category && (parsed.category === "website" || parsed.category === "agent")) {
+            updateData.category = parsed.category;
+        }
         const { error } = await supabase
           .from("projects")
           .update(updateData)
@@ -113,6 +116,7 @@ export async function POST(request: NextRequest) {
           title: parsed.title,
           description: "",
           stage: parsed.stage ?? "complete",
+          category: (parsed.category === "website" || parsed.category === "agent") ? parsed.category : "website",
           order: 0,
           summary: parsed.summary,
           tech_stack: parsed.tech_stack,

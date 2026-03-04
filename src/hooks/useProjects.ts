@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { Project, ProjectStage } from "@/lib/types";
+import { Project, ProjectStage, ProjectCategory } from "@/lib/types";
 
 export function useProjects() {
   const { user } = useAuth();
@@ -34,7 +34,7 @@ export function useProjects() {
   }, [user, supabase]);
 
   const addProject = useCallback(
-    async (title: string, stage: ProjectStage, description: string = "") => {
+    async (title: string, stage: ProjectStage, description: string = "", category: ProjectCategory = "website") => {
       if (!user) return;
 
       const stageProjects = projects.filter((p) => p.stage === stage);
@@ -49,6 +49,7 @@ export function useProjects() {
         title,
         description,
         stage,
+        category,
         order: maxOrder + 1,
         summary: "",
         tech_stack: [],
@@ -72,6 +73,7 @@ export function useProjects() {
           title,
           description,
           stage,
+          category,
           order: maxOrder + 1,
         })
         .select()
@@ -180,6 +182,13 @@ export function useProjects() {
     [projects]
   );
 
+  const getCategoryProjects = useCallback(
+    (category: ProjectCategory) => {
+      return projects.filter((p) => p.category === category);
+    },
+    [projects]
+  );
+
   return {
     projects,
     loading,
@@ -189,6 +198,7 @@ export function useProjects() {
     updateProject,
     deleteProject,
     getStageProjects,
+    getCategoryProjects,
     // Aliases for backward compatibility with KanbanBoard props
     cards: projects,
     getColumnCards: getStageProjects,

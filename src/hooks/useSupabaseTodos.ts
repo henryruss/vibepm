@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { TodoItem } from "@/lib/types";
 
-export function useSupabaseTodos() {
+export function useSupabaseTodos(projectId?: string) {
   const { user } = useAuth();
   const [todos, setTodos] = useState<TodoItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -15,10 +15,18 @@ export function useSupabaseTodos() {
     if (!user) return;
 
     const fetchTodos = async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("todos")
         .select("*")
         .order("created_at", { ascending: false });
+
+      if (projectId) {
+        query = query.eq("project_id", projectId);
+      } else {
+        query = query.is("project_id", null);
+      }
+
+      const { data, error } = await query;
 
       if (!error && data) {
         setTodos(data as TodoItem[]);
@@ -27,7 +35,7 @@ export function useSupabaseTodos() {
     };
 
     fetchTodos();
-  }, [user, supabase]);
+  }, [user, supabase, projectId]);
 
   const addTodo = useCallback(
     async (text: string) => {
@@ -36,6 +44,7 @@ export function useSupabaseTodos() {
       const optimistic: TodoItem = {
         id: crypto.randomUUID(),
         user_id: user.id,
+        project_id: projectId ?? null,
         text,
         completed: false,
         created_at: new Date().toISOString(),
@@ -43,9 +52,12 @@ export function useSupabaseTodos() {
 
       setTodos((prev) => [optimistic, ...prev]);
 
+      const insertData: Record<string, unknown> = { user_id: user.id, text };
+      if (projectId) insertData.project_id = projectId;
+
       const { data, error } = await supabase
         .from("todos")
-        .insert({ user_id: user.id, text })
+        .insert(insertData)
         .select()
         .single();
 
@@ -57,7 +69,7 @@ export function useSupabaseTodos() {
         );
       }
     },
-    [user, supabase]
+    [user, supabase, projectId]
   );
 
   const toggleTodo = useCallback(

@@ -3,19 +3,20 @@
 import { useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useProjects } from "@/hooks/useProjects";
-import { useSupabaseTodos } from "@/hooks/useSupabaseTodos";
-import { useSupabaseNotes } from "@/hooks/useSupabaseNotes";
+import { ProjectCategory } from "@/lib/types";
 import KanbanBoard from "./kanban/KanbanBoard";
-import TodoList from "./todos/TodoList";
-import NoteEditor from "./notes/NoteEditor";
+import PortfolioGrid from "./portfolio/PortfolioGrid";
 import ProjectDetailView from "./projects/ProjectDetailView";
+import AddProjectModal from "./portfolio/AddProjectModal";
+
+type ViewMode = "portfolio" | "pipeline";
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
   const projects = useProjects();
-  const todos = useSupabaseTodos();
-  const notes = useSupabaseNotes();
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [view, setView] = useState<ViewMode>("portfolio");
+  const [addModalCategory, setAddModalCategory] = useState<ProjectCategory | null>(null);
 
   const selectedProject = selectedProjectId
     ? projects.projects.find((p) => p.id === selectedProjectId) ?? null
@@ -34,10 +35,46 @@ export default function Dashboard() {
           </h1>
           <div className="w-px h-4 bg-stroke-light" />
           <span className="text-[10px] font-[family-name:var(--font-mono)] text-text-3 uppercase tracking-[0.2em]">
-            workspace
+            ai project portfolio
           </span>
         </div>
+
         <div className="flex items-center gap-4">
+          {/* Export portfolio */}
+          <button
+            onClick={async () => {
+              const { exportPortfolioPdf } = await import("@/lib/exportPdf");
+              exportPortfolioPdf(projects.projects);
+            }}
+            className="text-[10px] font-[family-name:var(--font-mono)] text-text-3 hover:text-text-2 transition-colors uppercase tracking-wider"
+          >
+            Export PDF
+          </button>
+
+          {/* View toggle */}
+          <div className="flex items-center bg-surface-2 rounded-md border border-stroke p-0.5">
+            <button
+              onClick={() => setView("portfolio")}
+              className={`text-[10px] font-[family-name:var(--font-mono)] uppercase tracking-wider px-2.5 py-1 rounded transition-all duration-200 ${
+                view === "portfolio"
+                  ? "bg-surface-0 text-text shadow-sm"
+                  : "text-text-3 hover:text-text-2"
+              }`}
+            >
+              Portfolio
+            </button>
+            <button
+              onClick={() => setView("pipeline")}
+              className={`text-[10px] font-[family-name:var(--font-mono)] uppercase tracking-wider px-2.5 py-1 rounded transition-all duration-200 ${
+                view === "pipeline"
+                  ? "bg-surface-0 text-text shadow-sm"
+                  : "text-text-3 hover:text-text-2"
+              }`}
+            >
+              Pipeline
+            </button>
+          </div>
+
           <div className="flex items-center gap-2">
             <div
               className={`w-1.5 h-1.5 rounded-full ${
@@ -59,52 +96,51 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* ── Sidebar ──────────────────────────── */}
-        <aside className="w-80 flex-shrink-0 bg-surface-0/50 backdrop-blur-sm flex flex-col overflow-hidden border-r border-stroke">
-          <div className="flex-1 overflow-y-auto py-4 flex flex-col gap-1">
-            <TodoList
-              todos={todos.todos}
-              onAdd={todos.addTodo}
-              onToggle={todos.toggleTodo}
-              onDelete={todos.deleteTodo}
-            />
-            <div className="glow-divider mx-4 my-3" />
-            <NoteEditor note={notes.note} onUpdate={notes.updateContent} />
-          </div>
-        </aside>
-
-        {/* ── Main ─────────────────────────────── */}
-        <main className="flex-1 overflow-hidden flex flex-col">
-          {projects.loading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
-                <p className="text-text-3 text-xs font-[family-name:var(--font-mono)] tracking-wider uppercase">
-                  Loading projects
-                </p>
-              </div>
+      {/* ── Main ─────────────────────────────── */}
+      <main className="flex-1 overflow-hidden flex flex-col">
+        {projects.loading ? (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+              <p className="text-text-3 text-xs font-[family-name:var(--font-mono)] tracking-wider uppercase">
+                Loading projects
+              </p>
             </div>
-          ) : (
-            <KanbanBoard
-              cards={projects.cards}
-              getColumnCards={projects.getColumnCards}
-              onAddCard={projects.addCard}
-              onDeleteCard={projects.deleteCard}
-              onMoveCard={projects.moveCard}
-              onCardClick={setSelectedProjectId}
-            />
-          )}
-        </main>
-      </div>
+          </div>
+        ) : view === "portfolio" ? (
+          <PortfolioGrid
+            projects={projects.projects}
+            onCardClick={setSelectedProjectId}
+            onAddProject={(cat) => setAddModalCategory(cat)}
+          />
+        ) : (
+          <KanbanBoard
+            cards={projects.cards}
+            getColumnCards={projects.getColumnCards}
+            onAddCard={projects.addCard}
+            onDeleteCard={projects.deleteCard}
+            onMoveCard={projects.moveCard}
+            onCardClick={setSelectedProjectId}
+          />
+        )}
+      </main>
 
-      {/* ── Project Detail Slide-out ──────────── */}
+      {/* ── Project Detail Panel ──────────── */}
       {selectedProject && (
         <ProjectDetailView
           project={selectedProject}
           onUpdate={projects.updateProject}
           onDelete={projects.deleteProject}
           onClose={() => setSelectedProjectId(null)}
+        />
+      )}
+
+      {/* ── Add Project Modal ──────────────── */}
+      {addModalCategory !== null && (
+        <AddProjectModal
+          defaultCategory={addModalCategory}
+          onAdd={projects.addProject}
+          onClose={() => setAddModalCategory(null)}
         />
       )}
     </div>

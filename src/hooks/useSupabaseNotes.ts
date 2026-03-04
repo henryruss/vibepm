@@ -5,11 +5,12 @@ import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { NoteData } from "@/lib/types";
 
-export function useSupabaseNotes() {
+export function useSupabaseNotes(projectId?: string) {
   const { user } = useAuth();
   const [note, setNote] = useState<NoteData>({
     id: "",
     user_id: "",
+    project_id: null,
     content: "",
     updated_at: new Date().toISOString(),
   });
@@ -21,17 +22,24 @@ export function useSupabaseNotes() {
     if (!user) return;
 
     const fetchNote = async () => {
-      const { data, error } = await supabase
-        .from("notes")
-        .select("*")
-        .limit(1)
-        .single();
+      let query = supabase.from("notes").select("*");
+
+      if (projectId) {
+        query = query.eq("project_id", projectId);
+      } else {
+        query = query.is("project_id", null);
+      }
+
+      const { data, error } = await query.limit(1).single();
 
       if (error && error.code === "PGRST116") {
         // No note exists yet, create one
+        const insertData: Record<string, unknown> = { user_id: user.id, content: "" };
+        if (projectId) insertData.project_id = projectId;
+
         const { data: newNote } = await supabase
           .from("notes")
-          .insert({ user_id: user.id, content: "" })
+          .insert(insertData)
           .select()
           .single();
 
@@ -45,7 +53,7 @@ export function useSupabaseNotes() {
     };
 
     fetchNote();
-  }, [user, supabase]);
+  }, [user, supabase, projectId]);
 
   const persistNote = useCallback(
     async (content: string) => {
@@ -66,7 +74,6 @@ export function useSupabaseNotes() {
         updated_at: new Date().toISOString(),
       }));
 
-      // Debounce save to Supabase (500ms)
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => persistNote(content), 500);
     },

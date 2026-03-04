@@ -2,6 +2,7 @@ export interface ParsedProjectLog {
   title: string;
   date: string | null;
   stage: string | null;
+  category: string | null;
   github_repo_url: string | null;
   summary: string;
   tech_stack: string[];
@@ -25,6 +26,10 @@ export function parseProjectLog(markdown: string): ParsedProjectLog {
   const stageMatch = markdown.match(/\*\*Stage:\*\*\s*(.+)/);
   const stage = stageMatch ? stageMatch[1].trim() : null;
 
+  // Category
+  const categoryMatch = markdown.match(/\*\*Category:\*\*\s*(.+)/);
+  const category = categoryMatch ? categoryMatch[1].trim().toLowerCase() : null;
+
   // GitHub repo URL
   const githubMatch = markdown.match(/\*\*GitHub:\*\*\s*(.+)/);
   const github_repo_url = githubMatch && githubMatch[1].trim() !== "none"
@@ -42,6 +47,7 @@ export function parseProjectLog(markdown: string): ParsedProjectLog {
     title,
     date,
     stage,
+    category,
     github_repo_url,
     summary,
     tech_stack: parseListItems(techStackRaw),

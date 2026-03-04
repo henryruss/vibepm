@@ -23,8 +23,8 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VibePM",
-  description: "Project management for vibe coders",
+  title: "VibePM — AI Project Portfolio",
+  description: "AI project portfolio headquarters — websites, webapps, and agents",
 };
 
 export default function RootLayout({
