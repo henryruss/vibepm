@@ -60,7 +60,7 @@ async function main() {
       user_id: USER_ID,
       title: parsed.title,
       description: "",
-      stage: "complete",
+      stage: parsed.stage ?? "complete",
       order: 0,
       summary: parsed.summary,
       tech_stack: parsed.tech_stack,
@@ -68,6 +68,7 @@ async function main() {
       key_decisions: parsed.key_decisions,
       lessons_learned: parsed.lessons_learned,
       source_log_path: sourceLogPath,
+      github_repo_url: parsed.github_repo_url ?? null,
     });
 
     if (error) {

@@ -85,16 +85,21 @@ export async function POST(request: NextRequest) {
 
       if (existing && existing.length > 0) {
         // Update existing project
-        const { error } = await supabase
-          .from("projects")
-          .update({
+        const updateData: Record<string, unknown> = {
             title: parsed.title,
             summary: parsed.summary,
             tech_stack: parsed.tech_stack,
             files_built: parsed.files_built,
             key_decisions: parsed.key_decisions,
             lessons_learned: parsed.lessons_learned,
-          })
+            github_repo_url: parsed.github_repo_url,
+        };
+        if (parsed.stage) {
+            updateData.stage = parsed.stage;
+        }
+        const { error } = await supabase
+          .from("projects")
+          .update(updateData)
           .eq("id", existing[0].id);
 
         results.push({
@@ -107,7 +112,7 @@ export async function POST(request: NextRequest) {
           user_id: USER_ID,
           title: parsed.title,
           description: "",
-          stage: "complete",
+          stage: parsed.stage ?? "complete",
           order: 0,
           summary: parsed.summary,
           tech_stack: parsed.tech_stack,
@@ -115,6 +120,7 @@ export async function POST(request: NextRequest) {
           key_decisions: parsed.key_decisions,
           lessons_learned: parsed.lessons_learned,
           source_log_path: filePath,
+          github_repo_url: parsed.github_repo_url ?? null,
         });
 
         results.push({

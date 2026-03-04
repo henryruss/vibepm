@@ -4,11 +4,11 @@ Personal project lifecycle command center. Tracks projects through stages: Idea 
 
 ## Tech Stack
 - **Framework:** Next.js 15 (App Router) + React 19 + TypeScript
-- **Styling:** Tailwind CSS v4 + custom "Void Luxe" dark theme
+- **Styling:** Tailwind CSS v4 + "Alpine to Ocean" light theme
 - **Drag & Drop:** @dnd-kit/core + @dnd-kit/sortable
 - **Backend:** Supabase (Postgres + Auth + RLS)
 - **Auth:** GitHub OAuth via Supabase Auth
-- **Deployment:** Vercel (planned)
+- **Deployment:** Vercel (live at https://vibepm-six.vercel.app/)
 
 ## Project Structure
 ```
@@ -34,7 +34,7 @@ src/
 ├── lib/
 │   ├── types.ts                  # Project, ProjectStage, TodoItem, NoteData
 │   ├── database.types.ts         # Supabase generated types
-│   ├── parseProjectLog.ts        # Markdown log parser for import
+│   ├── parseProjectLog.ts        # Markdown log parser (extracts stage, GitHub URL, sections)
 │   └── supabase/
 │       ├── client.ts             # Browser client (singleton)
 │       ├── server.ts             # Server client for API routes

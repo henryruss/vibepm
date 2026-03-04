@@ -1,6 +1,8 @@
 export interface ParsedProjectLog {
   title: string;
   date: string | null;
+  stage: string | null;
+  github_repo_url: string | null;
   summary: string;
   tech_stack: string[];
   files_built: string[];
@@ -19,6 +21,16 @@ export function parseProjectLog(markdown: string): ParsedProjectLog {
   const dateMatch = markdown.match(/\*\*Date:\*\*\s*(.+)/);
   const date = dateMatch ? dateMatch[1].trim() : null;
 
+  // Stage
+  const stageMatch = markdown.match(/\*\*Stage:\*\*\s*(.+)/);
+  const stage = stageMatch ? stageMatch[1].trim() : null;
+
+  // GitHub repo URL
+  const githubMatch = markdown.match(/\*\*GitHub:\*\*\s*(.+)/);
+  const github_repo_url = githubMatch && githubMatch[1].trim() !== "none"
+    ? githubMatch[1].trim()
+    : null;
+
   // Sections
   const summary = extractSection(lines, "Summary");
   const techStackRaw = extractSection(lines, "Tech Stack");
@@ -29,6 +41,8 @@ export function parseProjectLog(markdown: string): ParsedProjectLog {
   return {
     title,
     date,
+    stage,
+    github_repo_url,
     summary,
     tech_stack: parseListItems(techStackRaw),
     files_built: parseListItems(filesBuiltRaw),
