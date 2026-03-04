@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Syne, DM_Sans, DM_Mono } from "next/font/google";
+import { Outfit, DM_Sans, DM_Mono } from "next/font/google";
 import AuthProvider from "@/components/AuthProvider";
 import "./globals.css";
 
-const syne = Syne({
+const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
@@ -33,10 +33,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${syne.variable} ${dmSans.variable} ${dmMono.variable}`}>
+    <html lang="en" className={`${outfit.variable} ${dmSans.variable} ${dmMono.variable}`}>
       <body className="font-[family-name:var(--font-body)]">
-        <div id="void-atmosphere" />
-        <div id="void-noise" />
+        <div id="alpine-atmosphere" />
+        <div id="alpine-texture" />
+
         <div className="relative z-10">
           <AuthProvider>{children}</AuthProvider>
         </div>

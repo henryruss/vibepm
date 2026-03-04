@@ -15,6 +15,7 @@ import {
 import { Project, ProjectStage } from "@/lib/types";
 import KanbanColumn from "./KanbanColumn";
 import KanbanCard from "./KanbanCard";
+import PanoramaSVG from "../landscape/PanoramaSVG";
 
 const COLUMNS: ProjectStage[] = ["idea", "planned", "in-progress", "complete"];
 
@@ -116,17 +117,25 @@ export default function KanbanBoard({
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex gap-4 flex-1 overflow-x-auto p-5 stagger">
-        {COLUMNS.map((stage) => (
-          <KanbanColumn
-            key={stage}
-            columnId={stage}
-            cards={getColumnCards(stage)}
-            onAddCard={onAddCard}
-            onDeleteCard={onDeleteCard}
-            onCardClick={onCardClick}
-          />
-        ))}
+      <div className="relative flex-1 overflow-hidden">
+        {/* Panorama landscape layer */}
+        <div className="panorama-layer absolute bottom-0 left-0 right-0 h-[45vh] z-0 pointer-events-none">
+          <PanoramaSVG />
+        </div>
+
+        {/* Columns grid */}
+        <div className="relative z-10 grid grid-cols-4 gap-3 h-full p-4 stagger">
+          {COLUMNS.map((stage) => (
+            <KanbanColumn
+              key={stage}
+              columnId={stage}
+              cards={getColumnCards(stage)}
+              onAddCard={onAddCard}
+              onDeleteCard={onDeleteCard}
+              onCardClick={onCardClick}
+            />
+          ))}
+        </div>
       </div>
       <DragOverlay dropAnimation={null}>
         {activeCard ? (

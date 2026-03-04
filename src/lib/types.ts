@@ -17,6 +17,8 @@ export interface Project {
   lessons_learned: string[];
   source_log_path: string | null;
   url: string | null;
+  github_repo_url: string | null;
+  content_hash: string | null;
   created_at: string;
   updated_at: string;
 }

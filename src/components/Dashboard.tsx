@@ -75,7 +75,7 @@ export default function Dashboard() {
         </aside>
 
         {/* ── Main ─────────────────────────────── */}
-        <main className="flex-1 overflow-hidden flex flex-col bg-void-soft">
+        <main className="flex-1 overflow-hidden flex flex-col">
           {projects.loading ? (
             <div className="flex-1 flex items-center justify-center">
               <div className="flex flex-col items-center gap-3">

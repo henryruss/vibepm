@@ -17,7 +17,7 @@ export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
           w-[15px] h-[15px] rounded-[4px] border flex-shrink-0
           flex items-center justify-center transition-all duration-300
           ${todo.completed
-            ? "bg-gold border-gold shadow-[0_0_6px_rgba(245,166,35,0.3)]"
+            ? "bg-gold border-gold shadow-[0_0_6px_rgba(232,118,58,0.3)]"
             : "border-stroke-light hover:border-gold/50"
           }
         `}

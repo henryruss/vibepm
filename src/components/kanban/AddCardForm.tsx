@@ -78,7 +78,7 @@ export default function AddCardForm({ columnId, onAdd }: AddCardFormProps) {
           type="submit"
           className="
             text-[11px] font-[family-name:var(--font-mono)] font-medium uppercase tracking-wider
-            bg-gold hover:bg-gold-dim text-void
+            bg-gold hover:bg-gold-dim text-white
             px-3 py-1.5 rounded-md transition-all duration-200
           "
         >

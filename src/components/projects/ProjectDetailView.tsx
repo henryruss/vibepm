@@ -66,7 +66,7 @@ export default function ProjectDetailView({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-void/60 backdrop-blur-sm z-40"
+        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
         onClick={onClose}
       />
 

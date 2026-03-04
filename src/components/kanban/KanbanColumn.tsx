@@ -16,22 +16,22 @@ const COLUMN_CONFIG: Record<
   idea: {
     label: "Idea",
     color: "bg-col-idea",
-    bgGlow: "rgba(168, 130, 255, 0.08)",
+    bgGlow: "rgba(107, 181, 217, 0.12)",
   },
   planned: {
     label: "Planned",
     color: "bg-col-todo",
-    bgGlow: "rgba(124, 131, 247, 0.08)",
+    bgGlow: "rgba(46, 125, 79, 0.10)",
   },
   "in-progress": {
     label: "In Progress",
     color: "bg-col-progress",
-    bgGlow: "rgba(245, 166, 35, 0.06)",
+    bgGlow: "rgba(232, 118, 58, 0.10)",
   },
   complete: {
     label: "Complete",
     color: "bg-col-done",
-    bgGlow: "rgba(62, 207, 142, 0.06)",
+    bgGlow: "rgba(26, 138, 138, 0.10)",
   },
 };
 
@@ -55,18 +55,18 @@ export default function KanbanColumn({
 
   return (
     <div
-      className={`flex flex-col rounded-lg min-w-[252px] w-[280px] flex-shrink-0 transition-all duration-300 overflow-hidden ${
+      className={`column-glass flex flex-col rounded-lg transition-all duration-300 overflow-hidden ${
         isOver ? "ring-1 ring-gold/20" : ""
       }`}
       style={{
         background: isOver
           ? config.bgGlow
-          : "var(--color-surface-1)",
-        border: "1px solid var(--color-stroke)",
+          : undefined,
+        border: "1px solid rgba(61, 50, 40, 0.1)",
       }}
     >
       {/* Colored top strip */}
-      <div className={`h-[2px] ${config.color}`} />
+      <div className={`h-[3px] ${config.color}`} />
 
       {/* Header */}
       <div className="flex items-center gap-2.5 px-3.5 py-3">
@@ -79,10 +79,10 @@ export default function KanbanColumn({
         </span>
       </div>
 
-      {/* Card list */}
+      {/* Card list — scrollable */}
       <div
         ref={setNodeRef}
-        className="flex flex-col gap-2 px-2.5 pb-2.5 flex-1 min-h-[60px]"
+        className="flex flex-col gap-2 px-2.5 pb-2.5 flex-1 min-h-[60px] max-h-[55vh] overflow-y-auto"
       >
         <SortableContext
           items={cards.map((c) => c.id)}

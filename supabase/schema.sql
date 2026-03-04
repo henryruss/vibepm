@@ -16,6 +16,8 @@ create table public.projects (
   lessons_learned text[] default '{}',
   source_log_path text,
   url text,
+  github_repo_url text,
+  content_hash text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -40,6 +42,9 @@ create table public.notes (
 -- ── Indexes ─────────────────────────────────────────
 create index idx_projects_user_stage on public.projects (user_id, stage);
 create index idx_projects_user_order on public.projects (user_id, "order");
+create unique index idx_projects_user_github_url
+  on public.projects (user_id, github_repo_url)
+  where github_repo_url is not null;
 create index idx_todos_user on public.todos (user_id);
 create index idx_notes_user on public.notes (user_id);
 

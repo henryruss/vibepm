@@ -57,6 +57,8 @@ export function useProjects() {
         lessons_learned: [],
         source_log_path: null,
         url: null,
+        github_repo_url: null,
+        content_hash: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };

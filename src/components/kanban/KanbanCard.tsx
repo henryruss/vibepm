@@ -30,12 +30,14 @@ export default function KanbanCard({
     ? {
         transform: CSS.Transform.toString(transform),
         transition,
-        background: "var(--color-surface-2)",
-        border: "1px solid var(--color-stroke)",
+        background: "rgba(250, 244, 236, 0.8)",
+        backdropFilter: "blur(4px)",
+        WebkitBackdropFilter: "blur(4px)",
+        border: "1px solid rgba(61, 50, 40, 0.08)",
       }
     : {
         background: "var(--color-surface-3)",
-        border: "1px solid rgba(245, 166, 35, 0.2)",
+        border: "1px solid rgba(232, 118, 58, 0.25)",
       };
 
   const handleClick = () => {
