@@ -9,6 +9,7 @@ interface PortfolioGridProps {
   projects: Project[];
   onCardClick: (id: string) => void;
   onAddProject: (category: ProjectCategory) => void;
+  isOwner: boolean;
 }
 
 const CATEGORIES: { key: ProjectCategory; label: string; icon: React.ReactNode }[] = [
@@ -37,13 +38,16 @@ const CATEGORIES: { key: ProjectCategory; label: string; icon: React.ReactNode }
   },
 ];
 
-export default function PortfolioGrid({ projects, onCardClick, onAddProject }: PortfolioGridProps) {
+export default function PortfolioGrid({ projects, onCardClick, onAddProject, isOwner }: PortfolioGridProps) {
   return (
     <div className="flex-1 overflow-y-auto px-6 py-6 animate-view-fade">
       <div className="max-w-6xl mx-auto flex flex-col gap-10">
         {CATEGORIES.map(({ key, label, icon }) => {
           const catProjects = projects.filter((p) => p.category === key);
           const deployedCount = catProjects.filter(isDeployed).length;
+
+          // In public mode, skip empty categories
+          if (!isOwner && catProjects.length === 0) return null;
 
           return (
             <section key={key}>
@@ -63,15 +67,17 @@ export default function PortfolioGrid({ projects, onCardClick, onAddProject }: P
                     </span>
                   )}
                 </div>
-                <button
-                  onClick={() => onAddProject(key)}
-                  className="flex items-center gap-1.5 text-[11px] font-[family-name:var(--font-mono)] text-text-3 hover:text-text px-2.5 py-1.5 rounded-md border border-stroke hover:border-stroke-light transition-all duration-200 uppercase tracking-wider"
-                >
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                    <path d="M5 1V9M1 5H9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                  </svg>
-                  Add
-                </button>
+                {isOwner && (
+                  <button
+                    onClick={() => onAddProject(key)}
+                    className="flex items-center gap-1.5 text-[11px] font-[family-name:var(--font-mono)] text-text-3 hover:text-text px-2.5 py-1.5 rounded-md border border-stroke hover:border-stroke-light transition-all duration-200 uppercase tracking-wider"
+                  >
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M5 1V9M1 5H9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                    </svg>
+                    Add
+                  </button>
+                )}
               </div>
 
               {/* Grid */}

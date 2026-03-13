@@ -11,7 +11,11 @@ import AddProjectModal from "./portfolio/AddProjectModal";
 
 type ViewMode = "portfolio" | "pipeline";
 
-export default function Dashboard() {
+interface DashboardProps {
+  isOwner: boolean;
+}
+
+export default function Dashboard({ isOwner }: DashboardProps) {
   const { user, signOut } = useAuth();
   const projects = useProjects();
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -23,6 +27,7 @@ export default function Dashboard() {
     : null;
 
   const isConnected = !projects.error;
+  const activeView = isOwner ? view : "portfolio";
 
   return (
     <div className="h-screen flex flex-col overflow-hidden animate-fade-up">
@@ -30,12 +35,18 @@ export default function Dashboard() {
       <header className="flex items-center justify-between px-5 h-12 border-b border-stroke bg-surface-0/80 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <h1 className="font-[family-name:var(--font-display)] text-lg font-bold tracking-tight">
-            <span className="text-gold">vibe</span>
-            <span className="text-text">pm</span>
+            {isOwner ? (
+              <>
+                <span className="text-gold">vibe</span>
+                <span className="text-text">pm</span>
+              </>
+            ) : (
+              <span className="text-text">Henry Russell</span>
+            )}
           </h1>
           <div className="w-px h-4 bg-stroke-light" />
           <span className="text-[10px] font-[family-name:var(--font-mono)] text-text-3 uppercase tracking-[0.2em]">
-            ai project portfolio
+            {isOwner ? "ai project portfolio" : "software & ai projects"}
           </span>
         </div>
 
@@ -51,48 +62,63 @@ export default function Dashboard() {
             Export PDF
           </button>
 
-          {/* View toggle */}
-          <div className="flex items-center bg-surface-2 rounded-md border border-stroke p-0.5">
-            <button
-              onClick={() => setView("portfolio")}
-              className={`text-[10px] font-[family-name:var(--font-mono)] uppercase tracking-wider px-2.5 py-1 rounded transition-all duration-200 ${
-                view === "portfolio"
-                  ? "bg-surface-0 text-text shadow-sm"
-                  : "text-text-3 hover:text-text-2"
-              }`}
-            >
-              Portfolio
-            </button>
-            <button
-              onClick={() => setView("pipeline")}
-              className={`text-[10px] font-[family-name:var(--font-mono)] uppercase tracking-wider px-2.5 py-1 rounded transition-all duration-200 ${
-                view === "pipeline"
-                  ? "bg-surface-0 text-text shadow-sm"
-                  : "text-text-3 hover:text-text-2"
-              }`}
-            >
-              Pipeline
-            </button>
-          </div>
+          {/* View toggle — owner only */}
+          {isOwner && (
+            <div className="flex items-center bg-surface-2 rounded-md border border-stroke p-0.5">
+              <button
+                onClick={() => setView("portfolio")}
+                className={`text-[10px] font-[family-name:var(--font-mono)] uppercase tracking-wider px-2.5 py-1 rounded transition-all duration-200 ${
+                  view === "portfolio"
+                    ? "bg-surface-0 text-text shadow-sm"
+                    : "text-text-3 hover:text-text-2"
+                }`}
+              >
+                Portfolio
+              </button>
+              <button
+                onClick={() => setView("pipeline")}
+                className={`text-[10px] font-[family-name:var(--font-mono)] uppercase tracking-wider px-2.5 py-1 rounded transition-all duration-200 ${
+                  view === "pipeline"
+                    ? "bg-surface-0 text-text shadow-sm"
+                    : "text-text-3 hover:text-text-2"
+                }`}
+              >
+                Pipeline
+              </button>
+            </div>
+          )}
 
-          <div className="flex items-center gap-2">
-            <div
-              className={`w-1.5 h-1.5 rounded-full ${
-                isConnected ? "bg-col-done animate-glow-pulse" : "bg-danger"
-              }`}
-            />
-            <span className="text-[10px] font-[family-name:var(--font-mono)] text-text-3">
-              {isConnected ? "connected" : "offline"}
-            </span>
-          </div>
-          {user && (
+          {/* Connection status — owner only */}
+          {isOwner && (
+            <div className="flex items-center gap-2">
+              <div
+                className={`w-1.5 h-1.5 rounded-full ${
+                  isConnected ? "bg-col-done animate-glow-pulse" : "bg-danger"
+                }`}
+              />
+              <span className="text-[10px] font-[family-name:var(--font-mono)] text-text-3">
+                {isConnected ? "connected" : "offline"}
+              </span>
+            </div>
+          )}
+
+          {/* Auth: sign out for owner, subtle login link for guests */}
+          {isOwner && user ? (
             <button
               onClick={signOut}
               className="text-[10px] font-[family-name:var(--font-mono)] text-text-3 hover:text-text-2 transition-colors uppercase tracking-wider"
             >
               Sign out
             </button>
-          )}
+          ) : !isOwner ? (
+            <a
+              href="/login"
+              title="Owner login"
+              className="text-text-3/40 hover:text-text-3 transition-colors"
+            >
+              🔒
+            </a>
+          ) : null}
         </div>
       </header>
 
@@ -107,11 +133,12 @@ export default function Dashboard() {
               </p>
             </div>
           </div>
-        ) : view === "portfolio" ? (
+        ) : activeView === "portfolio" ? (
           <PortfolioGrid
             projects={projects.projects}
             onCardClick={setSelectedProjectId}
             onAddProject={(cat) => setAddModalCategory(cat)}
+            isOwner={isOwner}
           />
         ) : (
           <KanbanBoard
@@ -132,11 +159,12 @@ export default function Dashboard() {
           onUpdate={projects.updateProject}
           onDelete={projects.deleteProject}
           onClose={() => setSelectedProjectId(null)}
+          isOwner={isOwner}
         />
       )}
 
-      {/* ── Add Project Modal ──────────────── */}
-      {addModalCategory !== null && (
+      {/* ── Add Project Modal — owner only ──── */}
+      {isOwner && addModalCategory !== null && (
         <AddProjectModal
           defaultCategory={addModalCategory}
           onAdd={projects.addProject}

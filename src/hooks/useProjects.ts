@@ -14,12 +14,14 @@ export function useProjects() {
 
   // Fetch projects on mount
   useEffect(() => {
-    if (!user) return;
+    const targetUserId = user?.id ?? process.env.NEXT_PUBLIC_PORTFOLIO_USER_ID;
+    if (!targetUserId) return;
 
     const fetchProjects = async () => {
       const { data, error } = await supabase
         .from("projects")
         .select("*")
+        .eq("user_id", targetUserId)
         .order("order", { ascending: true });
 
       if (error) {
@@ -31,7 +33,7 @@ export function useProjects() {
     };
 
     fetchProjects();
-  }, [user, supabase]);
+  }, [user?.id, supabase]);
 
   const addProject = useCallback(
     async (title: string, stage: ProjectStage, description: string = "", category: ProjectCategory = "website") => {
